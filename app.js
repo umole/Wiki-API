@@ -20,38 +20,67 @@ const articleSchema = {
 
 const Article = mongoose.model("Article", articleSchema);
 
-app.get('/articles', (req, res) => {
-    Article.find((err, availableArticles) => {
-        res.send(availableArticles);
+////////////Request Targeting All Articles//////////////
+
+app.route('/articles')
+    .get((req, res) => {
+        Article.find((err, availableArticles) => {
+            res.send(availableArticles);
+        });
+    })
+    .post((req, res) => {
+
+        const newArticle = new Article(
+            {
+                title: req.body.title,
+                content: req.body.content
+            }
+        );
+        Article.insertMany(newArticle, (err) =>{
+            if (err) {
+                console.error(err);
+            } else {
+                console.log("Inserted successfully");
+            }
+        });
+    })
+    .delete((req, res) => {
+        Article.deleteMany((err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log("Articles deleted successfully!");
+            }
+        }); 
     });
-}); 
 
-app.post('/articles', (req, res) => {
+////////////Rquest Targeting A Specific Article/////////
 
-    const newArticle = new Article(
-        {
-            title: req.body.title,
-            content: req.body.content
-        }
-    );
-    Article.insertMany(newArticle, (err) =>{
-        if (err) {
-            console.error(err);
-        } else {
-            console.log("Inserted successfully");
-        }
-    });
-});
+app.route('/articles/:articleTitle')
+    .get((req, res) => {
+        
+        Article.findOne( {title: req.params.articleTitle}, (err, interestedArticle) => {
+            if (interestedArticle) {
+                res.send(interestedArticle.content);
+            } else {
+                res.status(404).send(`Invalid request. ${err}`);
+            }
+        });
+    })
+    .put((req, res) => {
+        Article.replaceOne(
+            {title: req.params.articleTitle},
+            {content: req.body.content},
+            {upsert: true},
+            (err) => {
+                if (err) {
+                    res.send("There was an error updating the docment");
+                } else {
+                    res.send("Record updated successfully");
+                }
+            });
+    })
 
-app.delete('/articles', (req, res) => {
-    Article.deleteMany((err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log("Articles deleted successfully!");
-        }
-    }); 
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
