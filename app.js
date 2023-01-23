@@ -26,6 +26,33 @@ app.get('/articles', (req, res) => {
     });
 }); 
 
+app.post('/articles', (req, res) => {
+
+    const newArticle = new Article(
+        {
+            title: req.body.title,
+            content: req.body.content
+        }
+    );
+    Article.insertMany(newArticle, (err) =>{
+        if (err) {
+            console.error(err);
+        } else {
+            console.log("Inserted successfully");
+        }
+    });
+});
+
+app.delete('/articles', (req, res) => {
+    Article.deleteMany((err) => {
+        if (err) {
+            console.error(err);
+        } else {
+            console.log("Articles deleted successfully!");
+        }
+    }); 
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is listening on PORT: ${PORT}`);
