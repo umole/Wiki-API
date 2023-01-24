@@ -76,9 +76,18 @@ app.route('/articles/:articleTitle')
                 if (err) {
                     res.send("There was an error updating the docment");
                 } else {
-                    res.send("Record updated successfully");
+                    res.send(`Record updated successfully. ${req.body.content}`);
                 }
             });
+    })
+    .delete((req, res) => {
+        Article.deleteOne({title: req.params.articleTitle}, (err) => {
+            if (err) {
+                res.send("Unable to delete")
+            } else {
+                res.send("Delete Successful.")
+            }
+        })
     })
 
 
